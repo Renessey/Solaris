@@ -161,6 +161,54 @@ textarea.input-cadastro {
   cursor: pointer;
 }
 
+.popup-fundo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  width: 80%;
+  max-width: 320px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  animation: popupAnim 0.25s ease;
+}
+
+.popup-box p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.popup-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.popup-btn:hover {
+  opacity: 0.9;
+}
+
+@keyframes popupAnim {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {

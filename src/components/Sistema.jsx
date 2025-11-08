@@ -99,9 +99,8 @@ export default function Sistema() {
               <div style={{ marginTop: '0.5rem' }}>
                 <div><strong>Quadra:</strong> {r.quadra}</div>
                 <div><strong>Lote:</strong> {r.lote}</div>
-
+                <div><strong>Placa:</strong> {r.placa ? r.placa : "—"}</div>
                 <div><strong>Entrada:</strong> {formatarHoraBrasilia(r.hora_entrada)}</div>
-
                 <div>
                   <strong>Saída:</strong>{' '}
                   {r.hora_saida ? formatarHoraBrasilia(r.hora_saida) : 'Ainda no local'}

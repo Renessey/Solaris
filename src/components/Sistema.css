@@ -3,16 +3,17 @@
   flex-direction: column;
   align-items: center; /* centraliza horizontalmente */
   justify-content: flex-start;
-  width: 22rem;
+  width: 100%;
   min-height: 100vh;
   padding: 0rem;
   box-sizing: border-box;
+  background-color: #797575;
 }
 
 .tela-conteudo h2 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #ac2727;
   margin-bottom: 1.5rem;
   white-space: nowrap; /* impede quebra de linha */
   text-align: center;
@@ -30,6 +31,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  padding: 1rem;
   gap: 0rem;
 }
 
@@ -54,7 +56,7 @@
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
-  width: 100%;
+  width: 90%;
 }
 
 .search-input {
@@ -149,6 +151,13 @@
 
 /* Responsividade */
 @media (max-width: 600px) {
+
+  .search-bar {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  width: 80%;
+}
   .tela-conteudo h2 {
     font-size: 1.3rem;
   }

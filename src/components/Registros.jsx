@@ -4,12 +4,20 @@ import { quadras, getLotes } from '../lotes'
 import { FiX } from 'react-icons/fi'
 import '../components/Registros.css'
 
-export default function Registros({ quadraSelecionada, setQuadraSelecionada, lotesDisponiveis, setLotesDisponiveis }) {
+export default function Registros({
+  quadraSelecionada,
+  setQuadraSelecionada,
+  lotesDisponiveis,
+  setLotesDisponiveis
+}) {
   const [registros, setRegistros] = useState([])
   const [busca, setBusca] = useState('')
   const [loteSelecionado, setLoteSelecionado] = useState('')
 
-  const hoje = new Date().toLocaleString("sv-SE", { timeZone: "America/Sao_Paulo" }).split(" ")[0]
+  // ✅ Data de hoje em horário BR
+  const hojeBrasilia = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "America/Sao_Paulo"
+  }).format(new Date())
 
   const handleQuadraChange = (e) => {
     const valor = e.target.value
@@ -18,15 +26,23 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
     setLoteSelecionado('')
   }
 
+  const formatarHora = (dataISO) => {
+    if (!dataISO) return '—'
+    return new Date(dataISO).toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour12: false
+    })
+  }
+
   const buscarRegistros = async () => {
-    const inicioDia = `${hoje} 00:00:00`
-    const fimDia = `${hoje} 23:59:59`
+    const inicio = `${hojeBrasilia}T00:00:00`
+    const fim = `${hojeBrasilia}T23:59:59`
 
     let query = supabase
       .from('cadastros')
       .select('*')
-      .gte('created_at', inicioDia)
-      .lte('created_at', fimDia)
+      .gte('created_at', inicio)
+      .lte('created_at', fim)
       .is('hora_saida', null)
 
     if (busca) query = query.ilike('nome', `%${busca}%`)
@@ -38,49 +54,35 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
     if (!error) setRegistros(data)
   }
 
-  // ✅ Auto atualização ao digitar ou selecionar filtros
   useEffect(() => {
     buscarRegistros()
   }, [busca, quadraSelecionada, loteSelecionado])
 
-  // ✅ Carrega ao abrir
   useEffect(() => {
     buscarRegistros()
   }, [])
 
-  const limparBusca = () => {
-    setBusca('')
-  }
+  const limparBusca = () => setBusca('')
 
+  // ✅ DAR BAIXA com horário BR real
   const darBaixa = async (id) => {
-    const agora = new Date();
-    const horaBrasil = agora
-      .toLocaleString("sv-SE", { timeZone: "America/Sao_Paulo" })
-      .replace("T", " ");
+    const horaBR = new Date().toLocaleString("sv-SE", {
+      timeZone: "America/Sao_Paulo"
+    }).replace("T", " ")
 
     await supabase
       .from("cadastros")
-      .update({ hora_saida: horaBrasil })
-      .eq("id", id);
+      .update({ hora_saida: horaBR })
+      .eq("id", id)
 
-    buscarRegistros();
-  };
-
-  const formatarHoraBrasilia = (dataISO) => {
-    if (!dataISO) return '—'
-    const data = new Date(dataISO)
-    return data.toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      hour12: false,
-    })
+    buscarRegistros()
   }
 
   return (
     <>
 
-      {/* Barra de Busca */}
+      {/* BUSCA */}
       <div className="busca-container">
-
         <div className="busca-input-wrapper">
           <input
             type="text"
@@ -96,16 +98,18 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
             </button>
           )}
         </div>
-
       </div>
 
-      {/* Filtro Quadra + Lote */}
+      {/* FILTROS */}
       <div className="filtros-container">
 
         <div className="filtro-box">
-          <label>Quadra:</label>
-          <select value={quadraSelecionada} onChange={handleQuadraChange} className="select-box">
-            <option value="">Selecione</option>
+          <select
+            value={quadraSelecionada}
+            onChange={handleQuadraChange}
+            className="select-box"
+          >
+            <option value="">QUADRA</option>
             {Object.keys(quadras).map((q) => (
               <option key={q} value={q}>{q}</option>
             ))}
@@ -113,9 +117,12 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
         </div>
 
         <div className="filtro-box">
-          <label>Lote:</label>
-          <select value={loteSelecionado} onChange={(e) => setLoteSelecionado(e.target.value)} className="select-box">
-            <option value="">Selecione o lote</option>
+          <select
+            value={loteSelecionado}
+            onChange={(e) => setLoteSelecionado(e.target.value)}
+            className="select-box"
+          >
+            <option value="">LOTE</option>
             {lotesDisponiveis.map((num) => (
               <option key={num} value={num}>{num}</option>
             ))}
@@ -124,7 +131,7 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
 
       </div>
 
-      {/* Registros */}
+      {/* LISTA DE REGISTROS */}
       <div className="container-logs">
         <h2>Cadastros de Hoje</h2>
 
@@ -132,7 +139,6 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
           <p>Nenhum registro encontrado.</p>
         ) : (
           <div className="cards-container">
-
             {registros.map((r) => (
               <div className="registro-card" key={r.id}>
 
@@ -142,6 +148,7 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
                 </div>
 
                 <div className="registro-info">
+
                   <div>
                     <div><strong>Quadra:</strong> {r.quadra || '—'}</div>
                     <div><strong>Lote:</strong> {r.lote || '—'}</div>
@@ -151,10 +158,16 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
                     <div><strong>Prisma:</strong> {r.prisma || '—'}</div>
                     <div><strong>Tipo:</strong> {r.tipo || '—'}</div>
                   </div>
+
+                </div>
+
+                {/* ✅ PLACA ADICIONADA AQUI */}
+                <div className="registro-info">
+                  <div><strong>Placa:</strong> {r.placa || '—'}</div>
                 </div>
 
                 <div className="registro-hora">
-                  <strong>Entrada:</strong> {formatarHoraBrasilia(r.hora_entrada || r.created_at)}
+                  <strong>Entrada:</strong> {formatarHora(r.hora_entrada || r.created_at)}
                 </div>
 
                 {r.observacoes && (
