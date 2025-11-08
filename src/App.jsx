@@ -48,7 +48,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Site cadastral</h1>
+      <h1>Solaris Residencial clube</h1>
       <p>Cadastros do dia: {dataAtual}</p>
 
       {tela === 'registros' && (

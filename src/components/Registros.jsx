@@ -38,13 +38,18 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
     if (!error) setRegistros(data)
   }
 
+  // ✅ Auto atualização ao digitar ou selecionar filtros
+  useEffect(() => {
+    buscarRegistros()
+  }, [busca, quadraSelecionada, loteSelecionado])
+
+  // ✅ Carrega ao abrir
   useEffect(() => {
     buscarRegistros()
   }, [])
 
   const limparBusca = () => {
     setBusca('')
-    buscarRegistros()
   }
 
   const darBaixa = async (id) => {
@@ -79,7 +84,7 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
         <div className="busca-input-wrapper">
           <input
             type="text"
-            placeholder="Nome, CPF ou Identidade..."
+            placeholder="Nome completo"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="busca-input"
@@ -92,12 +97,7 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
           )}
         </div>
 
-        <button onClick={buscarRegistros} className="btn-pesquisar">
-          Pesquisar
-        </button>
-
       </div>
-
 
       {/* Filtro Quadra + Lote */}
       <div className="filtros-container">
@@ -123,7 +123,6 @@ export default function Registros({ quadraSelecionada, setQuadraSelecionada, lot
         </div>
 
       </div>
-
 
       {/* Registros */}
       <div className="container-logs">

@@ -141,7 +141,7 @@ export default function Cadastrar({
 
   return (
     <div className="tela-conteudo">
-      <h2>Cadastrar Novo Usuário</h2>
+      <h2>Cadastro de usuário</h2>
 
       {/* ✅ CAMPO DE BUSCA SEPARADO */}
       <div className="form-group">
@@ -173,6 +173,19 @@ export default function Cadastrar({
         )}
       </div>
 
+      {/* Nome */}
+      <div className="form-group">
+        <label>Nome completo:</label>
+        <input
+          type="text"
+          className="input-cadastro"
+          placeholder="Digite o nome completo"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          onFocus={handleFocus}
+        />
+      </div>
+
       {/* ✅ CPF/RG SEPARADO */}
       <div className="form-group">
         <label>CPF ou RG:</label>
@@ -189,7 +202,6 @@ export default function Cadastrar({
 
       {/* Quadra */}
       <div className="select-container">
-        <label htmlFor="quadra">Quadra:</label>
         <select
           id="quadra"
           className="input-quadra"
@@ -197,16 +209,13 @@ export default function Cadastrar({
           onChange={handleQuadraChange}
           onFocus={handleFocus}
         >
-          <option value="">Selecione</option>
+          <option value="">Quadra</option>
           {Object.keys(quadras).map((q) => (
             <option key={q} value={q}>{q}</option>
           ))}
         </select>
-      </div>
 
-      {/* Lote */}
-      <div className="select-container">
-        <label htmlFor="lote">Lote:</label>
+        {/* Lote */}
         <select
           id="lote"
           className="input-lote"
@@ -214,36 +223,24 @@ export default function Cadastrar({
           onChange={(e) => setLoteSelecionado(e.target.value)}
           onFocus={handleFocus}
         >
-          <option value="">Selecione o lote</option>
+          <option value="">Lote</option>
           {lotesDisponiveis.map((num) => (
             <option key={num} value={num}>{num}</option>
           ))}
         </select>
       </div>
 
-      {/* Nome */}
-      <div className="form-group">
-        <label>Nome completo:</label>
-        <input
-          type="text"
-          className="input-cadastro"
-          placeholder="Digite o nome completo"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          onFocus={handleFocus}
-        />
-      </div>
 
-      {/* Prisma */}
+      <div className="Prisma-tipo-container">
+          {/* Prisma */}
       <div className="form-group">
-        <label>Prisma:</label>
         <select
           className="input-cadastro"
           value={prisma}
           onChange={(e) => setPrisma(e.target.value)}
           onFocus={handleFocus}
         >
-          <option value="">Selecione</option>
+          <option value="">Prisma</option>
           {[...Array(100)].map((_, i) => {
             const numero = i + 1
             const cores = ['Verde', 'Amarelo', 'Marrom', 'Azul']
@@ -255,6 +252,24 @@ export default function Cadastrar({
           })}
         </select>
       </div>
+
+        {/* Tipo */}
+        <div className="form-group">
+          <select
+            className="input-cadastro"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value)}
+            onFocus={handleFocus}
+          >
+            <option value="">Tipo</option>
+            <option value="visitante">Visitante</option>
+            <option value="prestador">Prestador de serviço</option>
+            <option value="entregador">Entregador</option>
+          </select>
+        </div>
+      </div>
+
+      
 
       {/* Placa */}
       <div className="form-group">
@@ -274,22 +289,6 @@ export default function Cadastrar({
           }}
           onFocus={handleFocus}
         />
-      </div>
-
-      {/* Tipo */}
-      <div className="form-group">
-        <label>Tipo:</label>
-        <select
-          className="input-cadastro"
-          value={tipo}
-          onChange={(e) => setTipo(e.target.value)}
-          onFocus={handleFocus}
-        >
-          <option value="">Selecione</option>
-          <option value="visitante">Visitante</option>
-          <option value="prestador">Prestador de serviço</option>
-          <option value="entregador">Entregador</option>
-        </select>
       </div>
 
       {/* Observações */}

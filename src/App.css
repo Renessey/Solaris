@@ -15,14 +15,6 @@ html, body {
   color: #000;
 }
 
-/* ====== CONTEÚDO PRINCIPAL ====== */
-.tela-conteudo {
-  padding: 1rem;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: left;
-}
-
 input, select, textarea {
   font-size: 1rem;
   padding: 0.7rem;
@@ -41,8 +33,10 @@ input:focus, select:focus, textarea:focus {
 
 /* ====== HEADER / TÍTULO ====== */
 .app h1 {
-  color: brown;
+  color: rgb(0, 0, 0);
   word-break: break-word; /* evita estourar largura */
+  font-weight: 800;
+  font-style: normal;
 }
 
 .app {
@@ -52,72 +46,11 @@ input:focus, select:focus, textarea:focus {
   margin: 0 auto;
 }
 
-/* ====== BARRA DE PESQUISA ====== */
-.search-container {
-  display: flex;
-  flex-wrap: wrap; /* quebra se necessário */
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto 1.5rem;
-}
-
-.input-pesquisa {
-  flex: 1 1 60%;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  box-sizing: border-box;
-  max-width: 100%; /* impede overflow */
-}
-
-.btn-pesquisar {
-  flex: 1 1 30%;
-  background-color: #1a1a1a;
-  color: white;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: 0.3s;
-  max-width: 100%;
-}
-
-.btn-pesquisar:hover {
-  background-color: #2a2a2a;
-  border-color: #646cff;
-}
-
-/* ====== SELECTS ====== */
-.select-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  width: 100%;
-  max-width: 100%;
-  margin: 1rem auto;
-}
-
-select {
-  width: 100%;
-  max-width: 100%; /* impede overflow */
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  box-sizing: border-box;
-}
-
 /* ====== BOTÃO FLUTUANTE ====== */
 .fab-container {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 1px;
+  right: 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -128,7 +61,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000;
+  background-color: #4793cc;
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -136,13 +69,11 @@ select {
   height: 56px;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(255,255,255,0.3);
-  transition: all 0.3s ease;
   margin-bottom: 35%;
 }
 
 .fab-button:hover {
-  background-color: #070707;
+  background-color: #31485e;
   transform: scale(1.05);
 }
 
