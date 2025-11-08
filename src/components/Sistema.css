@@ -3,23 +3,23 @@
   flex-direction: column;
   align-items: center; /* centraliza horizontalmente */
   justify-content: flex-start;
-  width: 100%;
+  width: 22rem;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 0rem;
   box-sizing: border-box;
 }
 
 .tela-conteudo h2 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #2f80ed;
+  color: #ffffff;
   margin-bottom: 1.5rem;
   white-space: nowrap; /* impede quebra de linha */
   text-align: center;
 }
 
 .tela-conteudo p {
-  color: #666;
+  color: #000000;
   text-align: center;
   font-size: 1rem;
 }
@@ -29,17 +29,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 120%;
-  max-width: 600px; /* largura máxima do grupo de cards */
+  width: 100%;
+  gap: 0rem;
 }
 
 /* Estilo dos cards individuais */
 .registro-card {
-  border: 1px solid #ddd;
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
-  background: #fff;
+  background: linear-gradient(90deg, #ed5e2f, #6289d7);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   color: #333;
   width: 100%;
@@ -55,6 +54,7 @@
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .search-input {
@@ -64,6 +64,8 @@
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;
+  color: #000000;
+  background-color: #ccc;
 }
 
 .cards-container {
@@ -72,15 +74,9 @@
   gap: 1rem;
 }
 
-.registro-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
 .registro-card h3 {
   margin-top: 0;
-  color: #2f80ed;
+  color: #000000;
 }
 /* --- POPUP DE CONFIRMAÇÃO --- */
 .popup-overlay {

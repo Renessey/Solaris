@@ -5,9 +5,9 @@ import '../components/Sistema.css'
 export default function Sistema() {
   const [cadastros, setCadastros] = useState([])
   const [busca, setBusca] = useState('')
-  const [confirmarExclusao, setConfirmarExclusao] = useState(null) // 🔔 guarda o id a ser excluído
+  const [confirmarExclusao, setConfirmarExclusao] = useState(null)
 
-  // 🔍 Buscar todos os cadastros
+  // ✅ Buscar todos os cadastros
   const buscarCadastros = async () => {
     const { data, error } = await supabase
       .from('cadastros')
@@ -18,17 +18,24 @@ export default function Sistema() {
     else setCadastros(data)
   }
 
-  // 🚀 Atualiza ao carregar
+  // ✅ Buscar ao abrir a tela
   useEffect(() => {
     buscarCadastros()
   }, [])
 
-  // 🕒 Formatar horário com fuso do Brasil
-  const formatarHoraBrasilia = (dataUTC) => {
-    if (!dataUTC) return '—'
-    const data = new Date(dataUTC)
-    return data.toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
+  // ✅ Formatar datas sem bug de UTC
+  const formatarHoraBrasilia = (data) => {
+    if (!data) return '—'
+
+    // Supabase pode retornar "2025-11-06 12:40:00"
+    // React precisa de "2025-11-06T12:40:00"
+    const formatada = data.includes("T") ? data : data.replace(" ", "T")
+
+    const dt = new Date(formatada)
+
+    if (isNaN(dt.getTime())) return "—"
+
+    return dt.toLocaleString('pt-BR', {
       hour: '2-digit',
       minute: '2-digit',
       day: '2-digit',
@@ -37,14 +44,16 @@ export default function Sistema() {
     })
   }
 
-  // 🔎 Filtragem por nome, cpf, rg, lote, quadra
+  // ✅ Filtro de busca (nome, cpf, rg, quadra, lote)
   const cadastrosFiltrados = cadastros.filter((r) =>
     [r.nome, r.cpf, r.rg, r.lote, r.quadra]
       .filter(Boolean)
-      .some((campo) => campo.toString().toLowerCase().includes(busca.toLowerCase()))
+      .some((campo) =>
+        campo.toString().toLowerCase().includes(busca.toLowerCase())
+      )
   )
 
-  // ❌ Excluir registro
+  // ✅ Excluir registro
   const excluirCadastro = async (id) => {
     const { error } = await supabase.from('cadastros').delete().eq('id', id)
 
@@ -61,7 +70,7 @@ export default function Sistema() {
     <div className="tela-conteudo">
       <h2>📋 Histórico de Cadastros</h2>
 
-      {/* 🔍 Barra de pesquisa */}
+      {/* ✅ Barra de pesquisa */}
       <div className="search-bar">
         <input
           type="text"
@@ -79,19 +88,27 @@ export default function Sistema() {
         <div className="cards-container">
           {cadastrosFiltrados.map((r) => (
             <div key={r.id} className="registro-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', gap: '0.1rem' }}>
+              
+              {/* ✅ Nome + CPF */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', gap: '0.1rem', fontSize: '0.9rem' }}>
                 <span>{r.nome}</span>
-                <span>{r.cpf}</span>
+                <span style={{color: 'white'}}>{r.cpf}</span>
               </div>
 
+              {/* ✅ Dados */}
               <div style={{ marginTop: '0.5rem' }}>
                 <div><strong>Quadra:</strong> {r.quadra}</div>
                 <div><strong>Lote:</strong> {r.lote}</div>
+
                 <div><strong>Entrada:</strong> {formatarHoraBrasilia(r.hora_entrada)}</div>
-                <div><strong>Saída:</strong> {r.hora_saida ? formatarHoraBrasilia(r.hora_saida) : 'Ainda no local'}</div>
+
+                <div>
+                  <strong>Saída:</strong>{' '}
+                  {r.hora_saida ? formatarHoraBrasilia(r.hora_saida) : 'Ainda no local'}
+                </div>
               </div>
 
-              {/* ❌ Botão de exclusão */}
+              {/* ✅ Botão de exclusão */}
               <button
                 className="delete-btn"
                 onClick={() => setConfirmarExclusao(r.id)}
@@ -103,7 +120,8 @@ export default function Sistema() {
                   padding: '5px 10px',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '0.8rem'
+                  fontSize: '0.8rem',
+                  width: '100%'
                 }}
               >
                 🗑️ Excluir
@@ -113,7 +131,7 @@ export default function Sistema() {
         </div>
       )}
 
-      {/* 💬 Popup de confirmação */}
+      {/* ✅ Popup de confirmação */}
       {confirmarExclusao && (
         <div className="popup-overlay">
           <div className="popup-box">
@@ -127,6 +145,7 @@ export default function Sistema() {
               >
                 Cancelar
               </button>
+
               <button
                 onClick={() => excluirCadastro(confirmarExclusao)}
                 className="popup-delete"
