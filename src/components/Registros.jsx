@@ -128,7 +128,10 @@ export default function Registros({
             ))}
           </select>
         </div>
+      </div>
 
+      <div className="contador-registros">
+          Total: {registros.length} registro(s)
       </div>
 
       {/* LISTA DE REGISTROS */}
