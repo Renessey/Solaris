@@ -38,24 +38,8 @@ export default function Registros({
     setLoteSelecionado('')
   }
 
-  // Busca todos os registros do dia (para o total)
-  const buscarTotalRegistrosHoje = async () => {
-    const inicio = `${hojeBrasilia}T00:00:00`
-    const fim = `${hojeBrasilia}T23:59:59`
-
-    const { data, error } = await supabase
-      .from('cadastros')
-      .select('*')
-      .gte('created_at', inicio)
-      .lte('created_at', fim)
-      .is('hora_saida', null)
-
-    if (!error) setTotalRegistrosHoje(data)
-    else console.error(error)
-  }
-
-  // Busca registros filtrados pelo nome ou pelos filtros
-  const buscarRegistros = async ({ somenteNome = false } = {}) => {
+  // Função genérica para buscar registros e total do dia com filtros
+  const buscarDados = async ({ somenteNome = false } = {}) => {
     const inicio = `${hojeBrasilia}T00:00:00`
     const fim = `${hojeBrasilia}T23:59:59`
 
@@ -66,6 +50,7 @@ export default function Registros({
       .lte('created_at', fim)
       .is('hora_saida', null)
 
+    // Aplica filtros
     if (somenteNome && busca.trim() !== '') {
       query = query.ilike('nome', `%${busca.trim()}%`)
     } else {
@@ -77,17 +62,31 @@ export default function Registros({
     const { data, error } = await query.order('created_at', { ascending: false })
     if (!error) setRegistros(data)
     else console.error(error)
+
+    // Total considerando os mesmos filtros
+    let totalQuery = supabase
+      .from('cadastros')
+      .select('*')
+      .gte('created_at', inicio)
+      .lte('created_at', fim)
+      .is('hora_saida', null)
+
+    if (!somenteNome) {
+      if (quadraSelecionada) totalQuery = totalQuery.eq('quadra', quadraSelecionada)
+      if (loteSelecionado) totalQuery = totalQuery.eq('lote', loteSelecionado)
+      if (prismaSelecionado) totalQuery = totalQuery.eq('prisma', prismaSelecionado)
+    } else if (busca.trim() !== '') {
+      totalQuery = totalQuery.ilike('nome', `%${busca.trim()}%`)
+    }
+
+    const { data: totalData, error: totalError } = await totalQuery
+    if (!totalError) setTotalRegistrosHoje(totalData)
+    else console.error(totalError)
   }
 
-  // Atualiza tanto o total quanto os registros exibidos
+  // Atualiza registros e total sempre que filtros ou busca mudarem
   useEffect(() => {
-    buscarTotalRegistrosHoje()
-
-    if (busca.trim() === '') {
-      buscarRegistros()
-    } else {
-      buscarRegistros({ somenteNome: true })
-    }
+    buscarDados(busca.trim() !== '' ? { somenteNome: true } : {})
   }, [busca, quadraSelecionada, loteSelecionado, prismaSelecionado])
 
   // Botão scroll para topo
@@ -116,8 +115,7 @@ export default function Registros({
       .update({ hora_saida: horaBR })
       .eq("id", id)
 
-    buscarTotalRegistrosHoje()
-    buscarRegistros(busca.trim() !== '' ? { somenteNome: true } : {})
+    buscarDados(busca.trim() !== '' ? { somenteNome: true } : {})
   }
 
   return (
