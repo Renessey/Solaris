@@ -224,6 +224,31 @@ html, body {
   padding-right: 8px;
 }
 
+.btn-topo {
+  position: fixed;
+  bottom: 10%;
+  right: 12px;
+  width: 5%;
+  height: 5%;
+  border: none;
+  border-radius: 50%;
+  background-color: #ededed;
+  color: rgb(0, 0, 0);
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1000;
+
+  /* centraliza o conteúdo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-topo:hover {
+  background-color: #0056b3;
+  color: #fff;
+}
+
 
 
 /* --- RESPONSIVIDADE --- */

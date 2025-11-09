@@ -11,20 +11,17 @@ export default function Registros({
   setLotesDisponiveis
 }) {
   const [registros, setRegistros] = useState([])
+  const [totalRegistrosHoje, setTotalRegistrosHoje] = useState([]) // total do dia
   const [busca, setBusca] = useState('')
   const [loteSelecionado, setLoteSelecionado] = useState('')
+  const [prismaSelecionado, setPrismaSelecionado] = useState('')
+  const [mostrarTopo, setMostrarTopo] = useState(false) // botão topo
 
-  // ✅ Data de hoje em horário BR
+  const cores = ['Verde', 'Amarelo', 'Marrom', 'Azul']
+
   const hojeBrasilia = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "America/Sao_Paulo"
   }).format(new Date())
-
-  const handleQuadraChange = (e) => {
-    const valor = e.target.value
-    setQuadraSelecionada(valor)
-    setLotesDisponiveis(getLotes(valor))
-    setLoteSelecionado('')
-  }
 
   const formatarHora = (dataISO) => {
     if (!dataISO) return '—'
@@ -34,7 +31,31 @@ export default function Registros({
     })
   }
 
-  const buscarRegistros = async () => {
+  const handleQuadraChange = (e) => {
+    const valor = e.target.value
+    setQuadraSelecionada(valor)
+    setLotesDisponiveis(getLotes(valor))
+    setLoteSelecionado('')
+  }
+
+  // Busca todos os registros do dia (para o total)
+  const buscarTotalRegistrosHoje = async () => {
+    const inicio = `${hojeBrasilia}T00:00:00`
+    const fim = `${hojeBrasilia}T23:59:59`
+
+    const { data, error } = await supabase
+      .from('cadastros')
+      .select('*')
+      .gte('created_at', inicio)
+      .lte('created_at', fim)
+      .is('hora_saida', null)
+
+    if (!error) setTotalRegistrosHoje(data)
+    else console.error(error)
+  }
+
+  // Busca registros filtrados pelo nome ou pelos filtros
+  const buscarRegistros = async ({ somenteNome = false } = {}) => {
     const inicio = `${hojeBrasilia}T00:00:00`
     const fim = `${hojeBrasilia}T23:59:59`
 
@@ -45,26 +66,46 @@ export default function Registros({
       .lte('created_at', fim)
       .is('hora_saida', null)
 
-    if (busca) query = query.ilike('nome', `%${busca}%`)
-    if (quadraSelecionada) query = query.eq('quadra', quadraSelecionada)
-    if (loteSelecionado) query = query.eq('lote', loteSelecionado)
+    if (somenteNome && busca.trim() !== '') {
+      query = query.ilike('nome', `%${busca.trim()}%`)
+    } else {
+      if (quadraSelecionada) query = query.eq('quadra', quadraSelecionada)
+      if (loteSelecionado) query = query.eq('lote', loteSelecionado)
+      if (prismaSelecionado) query = query.eq('prisma', prismaSelecionado)
+    }
 
     const { data, error } = await query.order('created_at', { ascending: false })
-
     if (!error) setRegistros(data)
+    else console.error(error)
   }
 
+  // Atualiza tanto o total quanto os registros exibidos
   useEffect(() => {
-    buscarRegistros()
-  }, [busca, quadraSelecionada, loteSelecionado])
+    buscarTotalRegistrosHoje()
 
+    if (busca.trim() === '') {
+      buscarRegistros()
+    } else {
+      buscarRegistros({ somenteNome: true })
+    }
+  }, [busca, quadraSelecionada, loteSelecionado, prismaSelecionado])
+
+  // Botão scroll para topo
   useEffect(() => {
-    buscarRegistros()
+    const handleScroll = () => {
+      if (window.scrollY > 300) setMostrarTopo(true)
+      else setMostrarTopo(false)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const irParaTopo = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const limparBusca = () => setBusca('')
 
-  // ✅ DAR BAIXA com horário BR real
   const darBaixa = async (id) => {
     const horaBR = new Date().toLocaleString("sv-SE", {
       timeZone: "America/Sao_Paulo"
@@ -75,23 +116,22 @@ export default function Registros({
       .update({ hora_saida: horaBR })
       .eq("id", id)
 
-    buscarRegistros()
+    buscarTotalRegistrosHoje()
+    buscarRegistros(busca.trim() !== '' ? { somenteNome: true } : {})
   }
 
   return (
     <>
-
       {/* BUSCA */}
       <div className="busca-container">
         <div className="busca-input-wrapper">
           <input
             type="text"
-            placeholder="Nome completo"
+            placeholder="Buscar pelo nome"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="busca-input"
           />
-
           {busca && (
             <button className="busca-clear" onClick={limparBusca}>
               <FiX size={20} />
@@ -100,9 +140,28 @@ export default function Registros({
         </div>
       </div>
 
-      {/* FILTROS */}
+      {/* PRISMA */}
       <div className="filtros-container">
+        <div className="filtro-box">
+          <select
+            value={prismaSelecionado}
+            onChange={(e) => setPrismaSelecionado(e.target.value)}
+            className="select-box"
+          >
+            <option value="">PRISMA</option>
+            {[...Array(100)].map((_, i) =>
+              cores.map((cor) => (
+                <option key={`${cor}-${i + 1}`} value={`${cor}-${i + 1}`}>
+                  Prisma {i + 1} — {cor}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+      </div>
 
+      {/* QUADRA E LOTE */}
+      <div className="filtros-container">
         <div className="filtro-box">
           <select
             value={quadraSelecionada}
@@ -115,7 +174,6 @@ export default function Registros({
             ))}
           </select>
         </div>
-
         <div className="filtro-box">
           <select
             value={loteSelecionado}
@@ -131,64 +189,57 @@ export default function Registros({
       </div>
 
       <div className="contador-registros">
-          Total: {registros.length} registro(s)
+        Total: {totalRegistrosHoje.length} registro(s)
       </div>
 
-      {/* LISTA DE REGISTROS */}
       <div className="container-logs">
         <h2>Cadastros de Hoje</h2>
-
         {registros.length === 0 ? (
           <p>Nenhum registro encontrado.</p>
         ) : (
           <div className="cards-container">
             {registros.map((r) => (
               <div className="registro-card" key={r.id}>
-
                 <div className="registro-topo">
                   <span>{r.nome || '—'}</span>
                   <span>{r.cpf || '—'}</span>
                 </div>
-
                 <div className="registro-info">
-
                   <div>
                     <div><strong>Quadra:</strong> {r.quadra || '—'}</div>
                     <div><strong>Lote:</strong> {r.lote || '—'}</div>
                   </div>
-
                   <div>
                     <div><strong>Prisma:</strong> {r.prisma || '—'}</div>
                     <div><strong>Tipo:</strong> {r.tipo || '—'}</div>
                   </div>
-
                 </div>
-
-                {/* ✅ PLACA ADICIONADA AQUI */}
                 <div className="registro-info">
                   <div><strong>Placa:</strong> {r.placa || '—'}</div>
                 </div>
-
                 <div className="registro-hora">
                   <strong>Entrada:</strong> {formatarHora(r.hora_entrada || r.created_at)}
                 </div>
-
                 {r.observacoes && (
                   <div className="registro-obs">
                     <strong>Observações:</strong> {r.observacoes}
                   </div>
                 )}
-
                 <button onClick={() => darBaixa(r.id)} className="btn-baixa">
                   Dar Baixa
                 </button>
-
               </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* BOTÃO SCROLL PARA TOPO */}
+      {mostrarTopo && (
+        <button className="btn-topo" onClick={irParaTopo}>
+          ↑
+        </button>
+      )}
     </>
   )
 }
