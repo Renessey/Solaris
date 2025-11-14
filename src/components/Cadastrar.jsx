@@ -22,7 +22,7 @@ export default function Cadastrar({
   const [busca, setBusca] = useState('')
   const [sugestoes, setSugestoes] = useState([])
 
-  // ✅ POPUP
+  // POPUP
   const [popupVisible, setPopupVisible] = useState(false)
   const [popupMensagem, setPopupMensagem] = useState('')
 
@@ -36,14 +36,14 @@ export default function Cadastrar({
     voltarParaRegistros()
   }
 
-  // ✅ Scroll ao focar
+  // Scroll ao focar
   const handleFocus = (e) => {
     setTimeout(() => {
       e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 300)
   }
 
-  // ✅ Mudar quadra → atualizar lotes
+  // Mudar quadra → atualizar lotes
   const handleQuadraChange = (e) => {
     const valor = e.target.value
     setQuadraSelecionada(valor)
@@ -51,7 +51,19 @@ export default function Cadastrar({
     setLoteSelecionado('')
   }
 
-  // ✅ AUTOCOMPLETE
+  // MÁSCARA CPF BUSCA
+  const maskCpfBusca = (value) => {
+    value = value.replace(/\D/g, '')
+    if (value.length <= 11) {
+      return value
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+    }
+    return value
+  }
+
+  // AUTOCOMPLETE
   useEffect(() => {
     const buscar = async () => {
       if (!busca || busca.length < 2) {
@@ -75,7 +87,7 @@ export default function Cadastrar({
     return () => clearTimeout(delay)
   }, [busca])
 
-  // ✅ Selecionar sugestão
+  // Selecionar sugestão
   const selecionarSugestao = async (id) => {
     const { data } = await supabase
       .from('cadastros')
@@ -100,7 +112,7 @@ export default function Cadastrar({
     }
   }
 
-  // ✅ Máscara CPF
+  // Máscara CPF normal
   const maskCpfRg = (value) => {
     value = value.replace(/\D/g, '')
 
@@ -113,7 +125,7 @@ export default function Cadastrar({
     return value
   }
 
-  // ✅ Hora Brasília
+  // Hora Brasília
   const gerarHoraBrasilia = () => {
     const agora = new Date()
     const utc = agora.getTime() + agora.getTimezoneOffset() * 60000
@@ -129,7 +141,7 @@ export default function Cadastrar({
     return `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`
   }
 
-  // ✅ CADASTRAR / ATUALIZAR SEM DUPLICAR
+  // CADASTRAR / ATUALIZAR SEM DUPLICAR
   const handleCadastrar = async () => {
     if (!nome || !cpf) {
       abrirPopup('Preencha pelo menos o Nome e o CPF!')
@@ -138,7 +150,6 @@ export default function Cadastrar({
 
     const horaEntrada = gerarHoraBrasilia()
 
-    // 🔎 Verifica se já existe CPF
     const { data: registrosCPF } = await supabase
       .from('cadastros')
       .select('*')
@@ -152,7 +163,7 @@ export default function Cadastrar({
       )[0]
     }
 
-    // ✅ SE EXISTIR → ATUALIZA
+    // Atualizar se existe
     if (registroExistente) {
       const { error: erroUpdate } = await supabase
         .from('cadastros')
@@ -170,16 +181,13 @@ export default function Cadastrar({
         })
         .eq('id', registroExistente.id)
 
-      if (!erroUpdate) {
-        abrirPopup('Cadastro atualizado com sucesso! ✅')
-      } else {
-        abrirPopup('Erro ao atualizar!')
-      }
+      if (!erroUpdate) abrirPopup('Cadastro atualizado com sucesso! ✅')
+      else abrirPopup('Erro ao atualizar!')
 
       return
     }
 
-    // ✅ NÃO EXISTE → CADASTRA NOVO
+    // Criar novo
     const { error } = await supabase.from('cadastros').insert([
       {
         quadra: quadraSelecionada || null,
@@ -196,17 +204,14 @@ export default function Cadastrar({
       }
     ])
 
-    if (!error) {
-      abrirPopup('Registro cadastrado com sucesso! ✅')
-    } else {
-      abrirPopup('Erro ao cadastrar!')
-    }
+    if (!error) abrirPopup('Registro cadastrado com sucesso! ✅')
+    else abrirPopup('Erro ao cadastrar!')
   }
 
   return (
     <div className="tela-conteudo">
 
-      {/* ✅ POPUP */}
+      {/* POPUP */}
       {popupVisible && (
         <div className="popup-fundo">
           <div className="popup-box">
@@ -221,12 +226,22 @@ export default function Cadastrar({
       {/* AUTOCOMPLETE */}
       <div className="form-group">
         <label>Buscar cadastro (CPF ou Nome):</label>
+
         <input
           type="text"
           className="input-cadastro"
           placeholder="Buscar..."
           value={busca}
-          onChange={(e) => setBusca(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value
+            const numeros = val.replace(/\D/g, '')
+
+            if (/^\d{0,11}$/.test(numeros)) {
+              setBusca(maskCpfBusca(val))
+            } else {
+              setBusca(val)
+            }
+          }}
           onFocus={handleFocus}
         />
 
@@ -290,9 +305,7 @@ export default function Cadastrar({
         >
           <option value="">Quadra</option>
           {Object.keys(quadras).map((q) => (
-            <option key={q} value={q}>
-              {q}
-            </option>
+            <option key={q} value={q}>{q}</option>
           ))}
         </select>
 
@@ -303,10 +316,8 @@ export default function Cadastrar({
           onFocus={handleFocus}
         >
           <option value="">Lote</option>
-          {lotesDisponiveis.map((num) => (
-            <option key={num} value={num}>
-              {num}
-            </option>
+          {lotesDisponiveis.map((n) => (
+            <option key={n} value={n}>{n}</option>
           ))}
         </select>
       </div>
